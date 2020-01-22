@@ -5,7 +5,7 @@ LIBS		:=
 
 CUDA_LIBS	:= $(LIBS) -L"$(CUDA_INSTALL_PATH)/lib64"
 
-NVCCFLAGS	:= -arch compute_20 -code sm_20 --ptxas-options=-v
+NVCCFLAGS	:= -arch sm_30 --ptxas-options=-v
 ifneq ($(debug), 1)
 	CFLAGS		:= -O3 -g0 -w
 	NVCCFLAGS	+= -O3
