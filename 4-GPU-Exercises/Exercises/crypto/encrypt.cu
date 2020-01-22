@@ -25,14 +25,18 @@ static void checkCudaCall(cudaError_t result) {
 }
 
 
-__global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
+__global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    deviceDataOut[index] = deviceDataIn[index] + 1;
+    if (index < n) {
+      deviceDataOut[index] = deviceDataIn[index] + 1;
+    }
 }
 
-__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut) {
+__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    deviceDataOut[index] = deviceDataIn[index] - 1;
+    if (index < n) {
+      deviceDataOut[index] = deviceDataIn[index] - 1;
+    }
 }
 
 int fileSize() {
@@ -117,7 +121,6 @@ int DecryptSeq (int n, char* data_in, char* data_out)
 
 int EncryptCuda (int n, char* data_in, char* data_out) {
     int threadBlockSize = 512;
-    n = n + (n % threadBlockSize);
 
     // allocate the vectors on the GPU
     char* deviceDataIn = NULL;
@@ -144,7 +147,8 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
 
     // execute kernel
     kernelTime1.start();
-    encryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut);
+    int n2 = n + (n % threadBlockSize);
+    encryptKernel<<<n2/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut, n2);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
@@ -194,7 +198,8 @@ int DecryptCuda (int n, char* data_in, char* data_out) {
 
     // execute kernel
     kernelTime1.start();
-    decryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut);
+    int n2 = n + (n % threadBlockSize);
+    decryptKernel<<<n2/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut, n);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
