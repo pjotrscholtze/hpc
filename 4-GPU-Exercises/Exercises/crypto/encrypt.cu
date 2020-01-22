@@ -27,7 +27,7 @@ static void checkCudaCall(cudaError_t result) {
 
 __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    deviceDataOut[index] = deviceDataIn[index] + 1;
+    deviceDataOut[index] = (deviceDataIn[index] + 1) % 0xFF;
 }
 
 __global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
@@ -92,7 +92,7 @@ int EncryptSeq (int n, char* data_in, char* data_out)
   timer sequentialTime = timer("Sequential encryption");
   
   sequentialTime.start();
-  for (i=0; i<n; i++) { data_out[i]=data_in[i]+1; }
+  for (i=0; i<n; i++) { data_out[i]=(data_in[i]+1) % 0xFF; }
   sequentialTime.stop();
 
   cout << fixed << setprecision(6);
