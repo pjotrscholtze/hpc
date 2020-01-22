@@ -25,11 +25,11 @@ static void checkCudaCall(cudaError_t result) {
 }
 
 char applyEncryption(char in) {
-  return (in + 1) % 256
+  return (in + 1) % 256;
 }
 
 char applyDecryption(char in) {
-  return (in + 255 + 1) % 256
+  return (in + 255 + 1) % 256;
 }
 
 __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
