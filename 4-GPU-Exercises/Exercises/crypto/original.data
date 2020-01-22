@@ -26,33 +26,34 @@ static void checkCudaCall(cudaError_t result) {
 }
 
 
-__global__ void vectorAddKernel(float* deviceA, float* deviceB, float* deviceResult) {
+__global__ void vectorAddKernel(char* deviceA, int deviceB, float* deviceResult) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    deviceResult[index] = deviceA[index] + deviceB[index];
+    deviceResult[index] = deviceA[index];// + deviceB[index];
 }
 
-void vectorAddCuda(int n, float* a, float* b, float* result) {
+// void vectorAddCuda(int n, float* a, float* b, float* result) {
+void EncryptCuda (int n, char* data_in, char* data_out) {
     int threadBlockSize = 512;
 
-    // allocate the vectors on the GPU
-    float* deviceA = NULL;
-    checkCudaCall(cudaMalloc((void **) &deviceA, n * sizeof(float)));
+    // allocate the data to be processed on the GPU
+    char* deviceA = NULL;
+    checkCudaCall(cudaMalloc((void **) &deviceA, n * sizeof(char)));
     if (deviceA == NULL) {
         cout << "could not allocate memory!" << endl;
         return;
     }
-    float* deviceB = NULL;
-    checkCudaCall(cudaMalloc((void **) &deviceB, n * sizeof(float)));
-    if (deviceB == NULL) {
-        checkCudaCall(cudaFree(deviceA));
-        cout << "could not allocate memory!" << endl;
-        return;
-    }
+    // float* deviceB = NULL;
+    // checkCudaCall(cudaMalloc((void **) &deviceB, n * sizeof(float)));
+    // if (deviceB == NULL) {
+    //     checkCudaCall(cudaFree(deviceA));
+    //     cout << "could not allocate memory!" << endl;
+    //     return;
+    // }
     float* deviceResult = NULL;
-    checkCudaCall(cudaMalloc((void **) &deviceResult, n * sizeof(float)));
+    checkCudaCall(cudaMalloc((void **) &deviceResult, n * sizeof(char)));
     if (deviceResult == NULL) {
         checkCudaCall(cudaFree(deviceA));
-        checkCudaCall(cudaFree(deviceB));
+        // checkCudaCall(cudaFree(deviceB));
         cout << "could not allocate memory!" << endl;
         return;
     }
@@ -62,13 +63,13 @@ void vectorAddCuda(int n, float* a, float* b, float* result) {
 
     // copy the original vectors to the GPU
     memoryTime.start();
-    checkCudaCall(cudaMemcpy(deviceA, a, n*sizeof(float), cudaMemcpyHostToDevice));
-    checkCudaCall(cudaMemcpy(deviceB, b, n*sizeof(float), cudaMemcpyHostToDevice));
+    checkCudaCall(cudaMemcpy(deviceA, data_in, n*sizeof(char), cudaMemcpyHostToDevice));
+    // checkCudaCall(cudaMemcpy(deviceB, b, n*sizeof(float), cudaMemcpyHostToDevice));
     memoryTime.stop();
 
     // execute kernel
     kernelTime1.start();
-    vectorAddKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceA, deviceB, deviceResult);
+    vectorAddKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceA, n, deviceResult);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
@@ -156,12 +157,15 @@ int writeData(int size, char *fileName, char *data) {
 
 int EncryptSeq (int n, char* data_in, char* data_out) 
 {
+  for (int i = 0; i < n; i++) {
+    data_out[i] = data_in[i] + 1; 
+  } 
   return 0; 
 }
 
-int EncryptCuda (int n, char* data_in, char* data_out) {
-  return 0;
-}
+// int EncryptCuda (int n, char* data_in, char* data_out) {
+//   return 0;
+// }
 
 int main(int argc, char* argv[]) {
     int n;;

@@ -26,8 +26,10 @@ static void checkCudaCall(cudaError_t result) {
 
 
 __global__ void vectorTransformKernel(float* A, float* B, float* Result) {
-// insert operation here
-
+  // insert operation here
+  for (int j=0; j<5; j++) {
+	result[i] = result[i]+a[i]*b[i];
+  }
 }
 
 void vectorTransformCuda(int n, float* a, float* b, float* result) {
