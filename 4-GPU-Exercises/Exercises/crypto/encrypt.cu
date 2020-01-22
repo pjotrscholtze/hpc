@@ -32,6 +32,16 @@ char applyDecryption(char in) {
   return (in + 255 - 1) % 256;
 }
 
+
+
+__device__ char applyEncryption(char in) {
+  return (in + 1) % 256;
+}
+
+__device__ char applyDecryption(char in) {
+  return (in + 255 - 1) % 256;
+}
+
 __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     deviceDataOut[index] = applyEncryption(deviceDataIn[index]);
