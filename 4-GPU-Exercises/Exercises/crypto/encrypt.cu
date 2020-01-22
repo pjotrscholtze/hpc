@@ -24,33 +24,17 @@ static void checkCudaCall(cudaError_t result) {
     }
 }
 
-char applyEncryption(char in) {
-  return (in + 1) % 256;
-}
 
-char applyDecryption(char in) {
-  return (in + 255 - 1) % 256;
-}
-
-
-
-__device__ char applyEncryptionDev(char in) {
-  return (in + 1) % 256;
-}
-
-__device__ char applyDecryptionDev(char in) {
-  return (in + 255 - 1) % 256;
-}
 
 __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    deviceDataOut[index] = applyEncryptionDev(deviceDataIn[index]);
+    deviceDataOut[index] = deviceDataIn[index] + 1;
 }
 
 __global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     // if (index < n) {
-      deviceDataOut[index] = applyDecryptionDev(deviceDataIn[index]);
+      deviceDataOut[index] = deviceDataIn[index] - 1;
     // }
 }
 
@@ -109,7 +93,7 @@ int EncryptSeq (int n, char* data_in, char* data_out)
   timer sequentialTime = timer("Sequential encryption");
   
   sequentialTime.start();
-  for (i=0; i<n; i++) { data_out[i]= applyEncryption(data_in[i]); }
+  for (i=0; i<n; i++) { data_out[i]= data_in[i] + 1; }
   sequentialTime.stop();
 
   cout << fixed << setprecision(6);
@@ -125,7 +109,7 @@ int DecryptSeq (int n, char* data_in, char* data_out)
 
   sequentialTime.start();
   for (i=0; i<n; i++) { 
-    data_out[i] = applyDecryption(data_in[i]);
+    data_out[i] = data_in[i] - 1;
   }
   sequentialTime.stop();
 
@@ -164,7 +148,8 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
 
     // execute kernel
     kernelTime1.start();
-    encryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut);
+    int padding = (n % threadBlockSize > 0) ? 1 : 0;
+    encryptKernel<<<(n/threadBlockSize) + padding, threadBlockSize>>>(deviceDataIn, deviceDataOut);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
