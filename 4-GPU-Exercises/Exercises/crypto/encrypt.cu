@@ -25,17 +25,17 @@ static void checkCudaCall(cudaError_t result) {
 }
 
 
-__global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
+__global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut, int n, char* keyDataIn, byte keyLength) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < n) {
-      deviceDataOut[index] = deviceDataIn[index] + 1;
+      deviceDataOut[index] = deviceDataIn[index] + keyDataIn[index % keyLength];
     }
 }
 
-__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
+__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n, char* keyDataIn, byte keyLength) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < n) {
-      deviceDataOut[index] = deviceDataIn[index] - 1;
+      deviceDataOut[index] = deviceDataIn[index] - keyDataIn[index % keyLength];
     }
 }
 
@@ -88,13 +88,13 @@ int writeData(int size, char *fileName, char *data) {
   return -1; 
 }
 
-int EncryptSeq (int n, char* data_in, char* data_out) 
+int EncryptSeq (int n, char* data_in, char* data_out, char* key, byte keyLength) 
 {  
   int i;
   timer sequentialTime = timer("Sequential encryption");
   
   sequentialTime.start();
-  for (i=0; i<n; i++) { data_out[i]=data_in[i] + 1; }
+  for (i=0; i<n; i++) { data_out[i]=data_in[i] + key[i % keyLength]; }
   sequentialTime.stop();
 
   cout << fixed << setprecision(6);
@@ -103,13 +103,13 @@ int EncryptSeq (int n, char* data_in, char* data_out)
   return 0; 
 }
 
-int DecryptSeq (int n, char* data_in, char* data_out)
+int DecryptSeq (int n, char* data_in, char* data_out, char* key, byte keyLength)
 {
   int i;
   timer sequentialTime = timer("Sequential decryption");
 
   sequentialTime.start();
-  for (i=0; i<n; i++) { data_out[i]=data_in[i] - 1; }
+  for (i=0; i<n; i++) { data_out[i]=data_in[i] - key[i % keyLength]; }
   sequentialTime.stop();
 
   cout << fixed << setprecision(6);
@@ -119,7 +119,7 @@ int DecryptSeq (int n, char* data_in, char* data_out)
 }
 
 
-int EncryptCuda (int n, char* data_in, char* data_out) {
+int EncryptCuda (int n, char* data_in, char* data_out, char* key, byte keyLength) {
     int threadBlockSize = 512;
 
     // allocate the vectors on the GPU
@@ -129,6 +129,13 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
         cout << "could not allocate memory!" << endl;
         return -1;
     }
+    char* keyDataIn = NULL;
+    checkCudaCall(cudaMalloc((void **) &keyDataIn, keyLength * sizeof(char)));
+    if (deviceDataIn == NULL) {
+        cout << "could not allocate memory!" << endl;
+        return -1;
+    }
+
     char* deviceDataOut = NULL;
     checkCudaCall(cudaMalloc((void **) &deviceDataOut, n * sizeof(char)));
     if (deviceDataOut == NULL) {
@@ -143,12 +150,13 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
     // copy the original vectors to the GPU
     memoryTime.start();
     checkCudaCall(cudaMemcpy(deviceDataIn, data_in, n*sizeof(char), cudaMemcpyHostToDevice));
+    checkCudaCall(cudaMemcpy(keyDataIn, key, keyLength*sizeof(char), cudaMemcpyHostToDevice));
     memoryTime.stop();
 
     // execute kernel
     kernelTime1.start();
     int n2 = (n % threadBlockSize) > 0 ? 1 : 0;
-    encryptKernel<<<(n/threadBlockSize) + n2, threadBlockSize>>>(deviceDataIn, deviceDataOut, n);
+    encryptKernel<<<(n/threadBlockSize) + n2, threadBlockSize>>>(deviceDataIn, deviceDataOut, n, keyDataIn, keyLength);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
@@ -162,6 +170,7 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
 
     checkCudaCall(cudaFree(deviceDataIn));
     checkCudaCall(cudaFree(deviceDataOut));
+    checkCudaCall(cudaFree(keyDataIn));
 
     cout << fixed << setprecision(6);
     cout << "Encrypt (kernel): \t\t" << kernelTime1.getElapsed() << " seconds." << endl;
@@ -170,13 +179,20 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
    return 0;
 }
 
-int DecryptCuda (int n, char* data_in, char* data_out) {
+int DecryptCuda (int n, char* data_in, char* data_out, char* key, byte keyLength) {
     int threadBlockSize = 512;
 
     // allocate the vectors on the GPU
     char* deviceDataIn = NULL;
     checkCudaCall(cudaMalloc((void **) &deviceDataIn, n * sizeof(char)));
     if (deviceDataIn == NULL) {
+        cout << "could not allocate memory!" << endl;
+        return -1;
+    }
+
+    char* keyDataIn = NULL;
+    checkCudaCall(cudaMalloc((void **) &keyDataIn, keyLength * sizeof(char)));
+    if (keyDataIn == NULL) {
         cout << "could not allocate memory!" << endl;
         return -1;
     }
@@ -194,12 +210,13 @@ int DecryptCuda (int n, char* data_in, char* data_out) {
     // copy the original vectors to the GPU
     memoryTime.start();
     checkCudaCall(cudaMemcpy(deviceDataIn, data_in, n*sizeof(char), cudaMemcpyHostToDevice));
+    checkCudaCall(cudaMemcpy(keyDataIn, key, keyLength*sizeof(char), cudaMemcpyHostToDevice));
     memoryTime.stop();
 
     // execute kernel
     kernelTime1.start();
     int n2 = (n % threadBlockSize) > 1 ? 1 : 0;
-    decryptKernel<<<(n/threadBlockSize) + n2, threadBlockSize>>>(deviceDataIn, deviceDataOut, n);
+    decryptKernel<<<(n/threadBlockSize) + n2, threadBlockSize>>>(deviceDataIn, deviceDataOut, n, keyDataIn, keyLength);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
@@ -213,6 +230,7 @@ int DecryptCuda (int n, char* data_in, char* data_out) {
 
     checkCudaCall(cudaFree(deviceDataIn));
     checkCudaCall(cudaFree(deviceDataOut));
+    checkCudaCall(cudaFree(keyDataIn));
 
     cout << fixed << setprecision(6);
     cout << "Decrypt (kernel): \t\t" << kernelTime1.getElapsed() << " seconds." << endl;
@@ -229,6 +247,8 @@ int main(int argc, char* argv[]) {
 	cout << "File not found! Exiting ... " << endl; 
 	exit(0);
     }
+    char key[] = {1, 2}
+    byte keyLength = 2;
 
     char* data_in = new char[n];
     char* data_out = new char[n];    
@@ -236,7 +256,7 @@ int main(int argc, char* argv[]) {
 
     cout << "Encrypting a file of " << n << " characters." << endl;
 
-    EncryptSeq(n, data_in, data_out);
+    EncryptSeq(n, data_in, data_out, key, keyLength);
     writeData(n, "sequential.data", data_out);
     EncryptCuda(n, data_in, data_out);
     writeData(n, "cuda.data", data_out);  
