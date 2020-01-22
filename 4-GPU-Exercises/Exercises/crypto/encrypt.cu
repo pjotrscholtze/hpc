@@ -258,15 +258,15 @@ int main(int argc, char* argv[]) {
 
     EncryptSeq(n, data_in, data_out, key, keyLength);
     writeData(n, "sequential.data", data_out);
-    EncryptCuda(n, data_in, data_out);
+    EncryptCuda(n, data_in, data_out, key, keyLength);
     writeData(n, "cuda.data", data_out);  
 
     readData("cuda.data", data_in);
 
     cout << "Decrypting a file of " << n << "characters" << endl;
-    DecryptSeq(n, data_in, data_out);
+    DecryptSeq(n, data_in, data_out, key, keyLength);
     writeData(n, "sequential_decrypted.data", data_out);
-    DecryptCuda(n, data_in, data_out); 
+    DecryptCuda(n, data_in, data_out, key, keyLength); 
     writeData(n, "recovered.data", data_out); 
  
     delete[] data_in;
