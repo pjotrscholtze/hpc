@@ -29,7 +29,7 @@ char applyEncryption(char in) {
 }
 
 char applyDecryption(char in) {
-  return (in + 255 + 1) % 256;
+  return (in + 255 - 1) % 256;
 }
 
 __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
