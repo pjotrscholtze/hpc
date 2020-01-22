@@ -30,7 +30,7 @@ __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
     deviceDataOut[index] = deviceDataIn[index] + 1;
 }
 
-__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut) {
+__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < n) {
       deviceDataOut[index] = (deviceDataIn[index] + 0xFE) % 0xFF;
@@ -108,8 +108,7 @@ int DecryptSeq (int n, char* data_in, char* data_out)
 
   sequentialTime.start();
   for (i=0; i<n; i++) { 
-    // data_out[i]=data_in[i]; 
-    deviceDataOut[i] = (deviceDataIn[i] + 0xFE) % 0xFF;
+    data_out[i] = (data_in[i] + 0xFE) % 0xFF;
   }
   sequentialTime.stop();
 
@@ -198,7 +197,7 @@ int DecryptCuda (int n, char* data_in, char* data_out) {
 
     // execute kernel
     kernelTime1.start();
-    decryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut);
+    decryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut, n);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
