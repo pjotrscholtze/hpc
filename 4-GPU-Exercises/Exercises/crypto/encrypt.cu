@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
 	cout << "File not found! Exiting ... " << endl; 
 	exit(0);
     }
-    char key[] = {1, 2}
+    char key[] = {1, 2};
     char keyLength = 2;
 
     char* data_in = new char[n];
