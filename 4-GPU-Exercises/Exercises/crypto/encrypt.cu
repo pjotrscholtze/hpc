@@ -25,17 +25,14 @@ static void checkCudaCall(cudaError_t result) {
 }
 
 
-
 __global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    deviceDataOut[index] = deviceDataIn[index] + 1;
+    deviceDataOut[index] = deviceDataIn[index];
 }
 
-__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n) {
+__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
-    // if (index < n) {
-      deviceDataOut[index] = deviceDataIn[index] - 1;
-    // }
+    deviceDataOut[index] = deviceDataIn[index];
 }
 
 int fileSize() {
@@ -93,7 +90,7 @@ int EncryptSeq (int n, char* data_in, char* data_out)
   timer sequentialTime = timer("Sequential encryption");
   
   sequentialTime.start();
-  for (i=0; i<n; i++) { data_out[i]= data_in[i] + 1; }
+  for (i=0; i<n; i++) { data_out[i]=data_in[i]; }
   sequentialTime.stop();
 
   cout << fixed << setprecision(6);
@@ -108,9 +105,7 @@ int DecryptSeq (int n, char* data_in, char* data_out)
   timer sequentialTime = timer("Sequential decryption");
 
   sequentialTime.start();
-  for (i=0; i<n; i++) { 
-    data_out[i] = data_in[i] - 1;
-  }
+  for (i=0; i<n; i++) { data_out[i]=data_in[i]; }
   sequentialTime.stop();
 
   cout << fixed << setprecision(6);
@@ -148,8 +143,7 @@ int EncryptCuda (int n, char* data_in, char* data_out) {
 
     // execute kernel
     kernelTime1.start();
-    int padding = (n % threadBlockSize > 0) ? 1 : 0;
-    encryptKernel<<<(n/threadBlockSize) + padding, threadBlockSize>>>(deviceDataIn, deviceDataOut);
+    encryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
@@ -199,7 +193,7 @@ int DecryptCuda (int n, char* data_in, char* data_out) {
 
     // execute kernel
     kernelTime1.start();
-    decryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut, n);
+    decryptKernel<<<n/threadBlockSize, threadBlockSize>>>(deviceDataIn, deviceDataOut);
     cudaDeviceSynchronize();
     kernelTime1.stop();
 
