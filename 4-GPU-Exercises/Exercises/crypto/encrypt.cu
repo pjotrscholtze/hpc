@@ -247,8 +247,16 @@ int main(int argc, char* argv[]) {
 	cout << "File not found! Exiting ... " << endl; 
 	exit(0);
     }
-    char key[] = {1, 2};
-    char keyLength = 2;
+
+    char t = 2; 
+    if (argc > 1) t = atoi(argv[1]);
+    t = t > 255 ? 255 : t;
+
+    char keyLength = (char) t;
+    char key[] =  new char[keyLength]; //{1, 2};
+    for (char i = 0; i < keyLength; i++) {
+      key[i] = i;
+    }
 
     char* data_in = new char[n];
     char* data_out = new char[n];    
