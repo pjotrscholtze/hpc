@@ -26,7 +26,11 @@ static void checkCudaCall(cudaError_t result) {
 
 
 __global__ void vectorAddKernel(float* A, float* B, float* Result) {
-// code here!
+    // Get the thread id, which we can use as itterator in the array of results.
+    int i = threadIdx.x + blockDim.x * blockIdx.x;
+
+    // Perform the action.
+    Result[i] = A[i] + B[i];
 }
 
 
