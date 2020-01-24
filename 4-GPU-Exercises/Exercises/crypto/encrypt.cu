@@ -252,10 +252,18 @@ int main(int argc, char* argv[]) {
     if (argc > 1) t = atoi(argv[1]);
     t = t > 255 ? 255 : t;
 
-    char keyLength = (char) t;
-    char key[] =  new char[keyLength]; //{1, 2};
-    for (char i = 0; i < keyLength; i++) {
-      key[i] = i;
+    char keyLength = argc - 1;
+    if (keyLength == 0) {
+        keyLength++;
+    }
+
+    char* key = new char[keyLength];
+    if (keyLength == argc) {
+        key[0] = 1;
+    } else {
+        for (int i = 1; i < argc; i++) {
+            key[i] = atoi(argv[i]);
+        }
     }
 
     char* data_in = new char[n];
