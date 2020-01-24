@@ -3,6 +3,10 @@ import glob
 import subprocess
 import json
 import os
+import random
+
+def generate_key(length):
+    return " ".join([str(random.randint(0,0xFF)) for i in range(length)])
 
 results = {}
 files = glob.glob("*.data")
@@ -15,10 +19,14 @@ for k, file in enumerate(files):
         key_size = 1 << i
         ratio = ((k * len(key_sizes)) + i) / (len(files) * len(key_sizes))
         print("[%.1f%s] Testing key size %d on file %s" % (ratio * 100, '%', key_size, file))
-        cmd_line = "./encrypt %d" % key_size
-        # print(cmd_line)
-        results[file][key_size] = subprocess.getoutput("ping -c 2 127.0.0.1")
+        key = generate_key(key_size)
+        cmd_line = "./encrypt %s" % key
+        results[file][key_size] = {
+            "key": key,
+            "result": subprocess.getoutput(cmd_line)
+        }
     os.rename("original.data", file)
 
-# with open("results.json", "w") as f:
-#     f.writelines([json.dumps(results)])
+
+with open("results.json", "w") as f:
+    f.writelines([json.dumps(results)])
