@@ -254,16 +254,16 @@ int DecryptCuda (int n, char* data_in, char* data_out, char* key, char keyLength
 
    return 0;
 }
-void readKeyFile(char* key) {
-    char* buffer = 0;
-    long length;
+void readKeyFile(char* key, int fileLength) {
+    char* buffer = new char[fileLength];
+    long length = fileLength
     FILE* fPointer = fopen ("key.data", "rb");
 
     if (fPointer) {
       fseek (fPointer, 0, SEEK_END);
       length = ftell (fPointer);
       fseek (fPointer, 0, SEEK_SET);
-      buffer = malloc (length);
+      // buffer = malloc (length);
       if (buffer) {
         fread (buffer, 1, length, fPointer);
       }
@@ -317,7 +317,7 @@ int main(int argc, char* argv[]) {
 
     char keyLength = t;
     char* key = new char[keyLength];
-    readKeyFile(key);
+    readKeyFile(key, t);
 
     char* data_in = new char[n];
     char* data_out = new char[n];    
