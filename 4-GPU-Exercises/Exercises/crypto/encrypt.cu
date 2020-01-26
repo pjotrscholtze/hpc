@@ -283,7 +283,9 @@ void readKeyFile(char* key, int fileLength) {
 
         if (buffer[i] == ' ') {
           key[keyIndex] = atoi(keyTemp);
-          keyTemp = {0x00, 0x00, 0x00, 0x00};
+          for (int y = 0; y < 4; y++) {
+            keyTemp[y] = 0x00;
+          }
           keyTempIndex = 0;
           keyIndex++;
           continue;
