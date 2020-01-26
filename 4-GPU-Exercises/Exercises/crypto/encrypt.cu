@@ -25,14 +25,14 @@ static void checkCudaCall(cudaError_t result) {
 }
 
 
-__global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut, int n, char* keyDataIn, char keyLength) {
+__global__ void encryptKernel(char* deviceDataIn, char* deviceDataOut, int n, char* keyDataIn, int keyLength) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < n) {
       deviceDataOut[index] = deviceDataIn[index] + keyDataIn[index % keyLength];
     }
 }
 
-__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n, char* keyDataIn, char keyLength) {
+__global__ void decryptKernel(char* deviceDataIn, char* deviceDataOut, int n, char* keyDataIn, int keyLength) {
     unsigned index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index < n) {
       deviceDataOut[index] = deviceDataIn[index] - keyDataIn[index % keyLength];
@@ -88,7 +88,7 @@ int writeData(int size, char *fileName, char *data) {
   return -1; 
 }
 
-int EncryptSeq (int n, char* data_in, char* data_out, char* key, char keyLength) 
+int EncryptSeq (int n, char* data_in, char* data_out, char* key, int keyLength) 
 {  
   int i;
   timer sequentialTime = timer("Sequential encryption");
@@ -103,7 +103,7 @@ int EncryptSeq (int n, char* data_in, char* data_out, char* key, char keyLength)
   return 0; 
 }
 
-int DecryptSeq (int n, char* data_in, char* data_out, char* key, char keyLength)
+int DecryptSeq (int n, char* data_in, char* data_out, char* key, int keyLength)
 {
   int i;
   timer sequentialTime = timer("Sequential decryption");
@@ -119,7 +119,7 @@ int DecryptSeq (int n, char* data_in, char* data_out, char* key, char keyLength)
 }
 
 
-int EncryptCuda (int n, char* data_in, char* data_out, char* key, char keyLength) {
+int EncryptCuda (int n, char* data_in, char* data_out, char* key, int keyLength) {
     int threadBlockSize = 512;
 
     // allocate the vectors on the GPU
@@ -179,7 +179,7 @@ int EncryptCuda (int n, char* data_in, char* data_out, char* key, char keyLength
    return 0;
 }
 
-int DecryptCuda (int n, char* data_in, char* data_out, char* key, char keyLength) {
+int DecryptCuda (int n, char* data_in, char* data_out, char* key, int keyLength) {
     int threadBlockSize = 512;
 
     // allocate the vectors on the GPU
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
     if (argc > 1) t = atoi(argv[1]);
     t = t > 255 ? 255 : t;
 
-    char keyLength = argc - 1;
+    int keyLength = argc - 1;
     if (keyLength == 0) {
         keyLength++;
     }
