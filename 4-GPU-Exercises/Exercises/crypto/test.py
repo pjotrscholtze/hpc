@@ -17,6 +17,7 @@ for k, file in enumerate(files):
     os.rename(file, "original.data")
     for i in key_sizes:
         key_size = 1 << i
+        key_size = key_size - 1
         ratio = ((k * len(key_sizes)) + i) / (len(files) * len(key_sizes))
         print("[%.1f%s] Testing key size %d on file %s" % (ratio * 100, '%', key_size, file))
         key = generate_key(key_size)
