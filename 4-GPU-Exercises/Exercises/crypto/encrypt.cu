@@ -55,22 +55,6 @@ int fileSize() {
   return size; 
 }
 
-int getKeyFileSize() {
-  int size; 
-
-  ifstream file ("key.data", ios::in|ios::binary|ios::ate);
-  if (file.is_open())
-  {
-    size = file.tellg();
-    file.close();
-  }
-  else {
-    cout << "Unable to open file";
-    size = -1; 
-  }
-  return size; 
-}
-
 int readData(char *fileName, char *data) {
 
   streampos size;
@@ -254,72 +238,33 @@ int DecryptCuda (int n, char* data_in, char* data_out, char* key, char keyLength
 
    return 0;
 }
-void readKeyFile(char* key, int fileLength) {
-    char* buffer = new char[fileLength];
-    long length = fileLength;
-    FILE* fPointer = fopen ("key.data", "rb");
 
-    if (fPointer) {
-      fseek (fPointer, 0, SEEK_END);
-      length = ftell (fPointer);
-      fseek (fPointer, 0, SEEK_SET);
-      // buffer = malloc (length);
-      if (buffer) {
-        fread (buffer, 1, length, fPointer);
-      }
-      fclose (fPointer);
-    }
-
-
-    char keyTemp[4] = {0x00, 0x00, 0x00, 0x00};
-    char keyTempIndex = 0;
-    char keyIndex = 0;
-    if (buffer) {
-      for (int i = 0; i < length; i++) {
-        // On end of string stop.
-        if (buffer[i] == 0x00) {
-          break;
-        }
-
-        if (buffer[i] == ' ') {
-          key[keyIndex] = atoi(keyTemp);
-          for (int y = 0; y < 4; y++) {
-            keyTemp[y] = 0x00;
-          }
-          keyTempIndex = 0;
-          keyIndex++;
-          continue;
-        }
-        keyTemp[keyTempIndex] = buffer[i];
-        keyTempIndex++;
-      }
-    }
-}
 int main(int argc, char* argv[]) {
-    int n, keyFileSize;
+    int n;
 
     n = fileSize();
     if (n == -1) {
-      cout << "File not found! Exiting ... " << endl; 
-      exit(0);
+	cout << "File not found! Exiting ... " << endl; 
+	exit(0);
     }
-    keyFileSize = getKeyFileSize();
-    if (keyFileSize == -1) {
-      cout << "Key file not found! Exiting ... " << endl; 
-      exit(0);
-    }
-    int t = -1; 
-    if (argc > 1) {
-       t = atoi(argv[1]);
-    } else {
-      cout << "Key file size not given! Exiting ... " << endl; 
-      exit(0);
-    }
-    
 
-    char keyLength = t;
+    char t = 2; 
+    if (argc > 1) t = atoi(argv[1]);
+    t = t > 255 ? 255 : t;
+
+    char keyLength = argc - 1;
+    if (keyLength == 0) {
+        keyLength++;
+    }
+
     char* key = new char[keyLength];
-    readKeyFile(key, t);
+    if (keyLength == argc) {
+        key[0] = 1;
+    } else {
+        for (int i = 1; i < argc; i++) {
+            key[i] = atoi(argv[i]);
+        }
+    }
 
     char* data_in = new char[n];
     char* data_out = new char[n];    
