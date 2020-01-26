@@ -6,11 +6,11 @@ import os
 import random
 
 def generate_key(length):
-    return " ".join([hex(random.randint(0,0xFF))[2:] for i in range(length)])
+    return " ".join([str(random.randint(0,0xFF)) for i in range(length)])
 
 results = {}
 files = glob.glob("*.data")
-key_sizes = range(0, 17)
+key_sizes = range(0, 9)
 
 for k, file in enumerate(files):
     results[file] = {}

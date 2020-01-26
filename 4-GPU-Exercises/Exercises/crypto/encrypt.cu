@@ -262,7 +262,7 @@ int main(int argc, char* argv[]) {
         key[0] = 1;
     } else {
         for (int i = 1; i < argc; i++) {
-            key[i] = (char) strtol(argv[i], null, 16);
+            key[i] = atoi(argv[i]);
         }
     }
 
