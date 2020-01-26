@@ -10,7 +10,7 @@ def generate_key(length):
 
 results = {}
 files = glob.glob("*.data")
-key_sizes = range(0, 9)
+key_sizes = range(0, 10)
 
 for k, file in enumerate(files):
     results[file] = {}
