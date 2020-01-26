@@ -6,7 +6,7 @@ import os
 import random
 
 def generate_key(length):
-    return " ".join([str(random.randint(0,0xFF)) for i in range(length)])
+    return " ".join([hex(random.randint(0,0xFF))[2:] for i in range(length)])
 
 results = {}
 files = glob.glob("*.data")
@@ -20,10 +20,8 @@ for k, file in enumerate(files):
         ratio = ((k * len(key_sizes)) + i) / (len(files) * len(key_sizes))
         print("[%.1f%s] Testing key size %d on file %s" % (ratio * 100, '%', key_size, file))
         key = generate_key(key_size)
-        with open("key.data", "w") as f:
-            f.write(key)
 
-        cmd_line = "./encrypt %d" % key_size
+        cmd_line = "./encrypt %s" % key
         results[file][key_size] = {
             "key": key,
             "result": subprocess.getoutput(cmd_line)
