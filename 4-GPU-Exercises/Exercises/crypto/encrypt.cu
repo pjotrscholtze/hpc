@@ -256,7 +256,7 @@ int DecryptCuda (int n, char* data_in, char* data_out, char* key, char keyLength
 }
 void readKeyFile(char* key, int fileLength) {
     char* buffer = new char[fileLength];
-    long length = fileLength
+    long length = fileLength;
     FILE* fPointer = fopen ("key.data", "rb");
 
     if (fPointer) {
