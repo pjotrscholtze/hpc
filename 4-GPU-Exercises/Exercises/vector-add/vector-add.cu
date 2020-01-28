@@ -34,7 +34,7 @@ __global__ void vectorAddKernel(float* A, float* B, float* Result) {
 }
 
 void vectorAddCuda(int n, float* a, float* b, float* result) {
-    int threadBlockSize = 512;
+    int threadBlockSize = 256;
 
     // allocate the vectors on the GPU
     float* deviceA = NULL;
