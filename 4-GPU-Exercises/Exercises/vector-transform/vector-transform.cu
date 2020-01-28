@@ -33,7 +33,7 @@ __global__ void vectorTransformKernel(float* A, float* B, float* Result) {
 }
 
 void vectorTransformCuda(int n, float* a, float* b, float* result) {
-    int threadBlockSize = 512;
+    int threadBlockSize = 256;
 
     // allocate the vectors on the GPU
     float* deviceA = NULL;
