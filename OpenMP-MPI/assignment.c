@@ -115,13 +115,13 @@ int run_as_master(int worker_count, long int startval, long int nval) {
     }
     while (active_workers > 0) {
         int worker, result;
-        // TODO: put communication call here
+        await_result(&worker, &result);
         primes += result;
         if (val <= endval) {
-            // TODO: put communication call here
+            send_work_command(worker, val);
             val += 2;
         } else {
-            // TODO: put communication call here
+            send_work_command(worker, 0);
             active_workers--;
         }
     }
