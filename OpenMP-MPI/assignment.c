@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define SIZE_N 10
+
+long int matrix[SIZE_N][SIZE_N];// = new long int[][];
+long int vector[SIZE_N];// = new long int[][];
 
 /**
  * Given a value 'n', return {\code true} iff the value is prime.
@@ -95,31 +99,30 @@ void await_result(int *worker, int *result) {
  * @param nval The number of values to examine.
  * @return The number of values in the specified range.
  */
-int run_as_master(int worker_count, long int startval, long int nval) {
+int run_as_master(int worker_count) {
     int active_workers = 0, primes = 0;
-    long int val = startval, endval = startval + nval;
+    long int val = 0;//startval, endval = startval + nval;
 
-    if (val == 2) {
-        // Handling 2, (the only even prime) is messy, so we cheat, and just count it in immediately.
-        primes++;
-        val++;
-    }
-    if ((val % 2) == 0) {
-        // If we start with an even number, skip it. Note that we already dealt with 2 above.
-        val++;
-    }
-    for (int worker = 1; worker <worker_count && val <= endval; worker++) {
+    // if (val == 2) {
+    //     // Handling 2, (the only even prime) is messy, so we cheat, and just count it in immediately.
+    //     primes++;
+    //     val++;
+    // }
+    // if ((val % 2) == 0) {
+    //     // If we start with an even number, skip it. Note that we already dealt with 2 above.
+    //     val++;
+    // }
+    for (int worker = 1; worker < worker_count && worker < SIZE_N; worker++) {
         send_work_command(worker, val);
-        val += 2;
+        val++;
         active_workers++;
     }
     while (active_workers > 0) {
         int worker, result;
         await_result(&worker, &result);
-        primes += result;
-        if (val <= endval) {
+        if (val <= SIZE_N) {
             send_work_command(worker, val);
-            val += 2;
+            val++;
         } else {
             send_work_command(worker, 0);
             active_workers--;
@@ -159,9 +162,16 @@ int main(int argc, char *argv[]) {
     const bool am_master = 0 == rank;
 
     if (am_master) {
+        for (int i = 0; i < SIZE_N; i++) {
+            vector[i] = i;
+            for (int j = 0; j < SIZE_N; j++) {
+                matrix[i][j] = i * j;
+            }
+        }
+
         printf("Running as master\n");
         const double start = MPI_Wtime();
-        int primes = run_as_master(size - 1, base, r);
+        int primes = run_as_master(size - 1);
         const double finish = MPI_Wtime();
         printf("Master has finished. There are %d primes between %ld and %ld, this took %.1f seconds\n", primes, base, base + r, finish-start);
     } else {
