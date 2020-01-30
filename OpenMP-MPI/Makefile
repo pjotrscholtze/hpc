@@ -25,9 +25,7 @@ empty:
 	rm -rf $(JUNK) $(EXPENSIVE_JUNK)
 
 assignment: assignment
-	$(CC) $(OMP_CFLAGS) -o assignment assignment.c
+	$(CC) $(OMP_CFLAGS) $(MPI_CFLAGS) -o assignment assignment.c
 
-primes-mpi: primes-mpi.c
-	mpiCC $(MPI_CFLAGS) -o primes-mpi primes-mpi.c
 
 
