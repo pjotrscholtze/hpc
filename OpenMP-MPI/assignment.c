@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define SIZE_N 10
+#define SIZE_N 32
 
 long int matrix[SIZE_N][SIZE_N];// = new long int[][];
 long int vector[SIZE_N];// = new long int[][];
@@ -19,22 +19,22 @@ long int vector[SIZE_N];// = new long int[][];
  * @param n The value to examine.
  * @return {\code true} iff the value is prime.
  */
-bool is_prime(long int n) {
-    if (n < 2) {
-        return false;
-    }
-    if ((n % 2) == 0) {
-        return n == 2;
-    }
-    const long int top = (long int) ceil(sqrt(n));
-    bool res = true;
-    for (long int k = 3; k < top; k += 2) {
-        if ((n % k) == 0) {
-            res = false;
-            break;
-        }
-    }
-    return res;
+void execute_work(long int n) {
+    // if (n < 2) {
+    //     return false;
+    // }
+    // if ((n % 2) == 0) {
+    //     return n == 2;
+    // }
+    // const long int top = (long int) ceil(sqrt(n));
+    // bool res = true;
+    // for (long int k = 3; k < top; k += 2) {
+    //     if ((n % k) == 0) {
+    //         res = false;
+    //         break;
+    //     }
+    // }
+    // return res;
 }
 
 
@@ -119,7 +119,7 @@ int run_as_master(int worker_count) {
     }
     while (active_workers > 0) {
         int worker, result;
-        await_result(&worker, &result);
+        // await_result(&worker, &result);
         if (val <= SIZE_N) {
             send_work_command(worker, val);
             val++;
@@ -142,8 +142,7 @@ void run_as_worker(void) {
         if (val == 0) {
             break;  // The master told us to stop.
         }
-        int result = is_prime(val);
-        send_result(result);
+        execute_work(val);
     }
 }
 
