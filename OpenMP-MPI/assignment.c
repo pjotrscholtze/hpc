@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define SIZE_N 32
+#define SIZE_N 3200
+#define BLOCK_SIZE 8
 #define R_MULTIPLIER 8
 
 long int matrix[SIZE_N][SIZE_N];// = new long int[][];
@@ -21,14 +22,16 @@ long int vector[SIZE_N];// = new long int[][];
  * @return {\code true} iff the value is prime.
  */
 void execute_work(long int n) {
-    long int baseNumber = vector[n];
-    long int *row = matrix[n];
+    for (int offset = 0; offset < BLOCK_SIZE; offset++) {
+        long int baseNumber = vector[n + offset];
+        long int *row = matrix[n + offset];
 
-    long int result = 0;
-    for (int i = 0; i < SIZE_N; i++) {
-        result += baseNumber * row[i] * R_MULTIPLIER; 
+        long int result = 0;
+        for (int i = 0; i < SIZE_N; i++) {
+            result += baseNumber * row[i] * R_MULTIPLIER; 
+        }
+        vector[n + offset] = result;
     }
-    vector[n] = result;
 }
 
 /**
@@ -98,14 +101,14 @@ int run_as_master(int worker_count) {
 
     for (int worker = 1; worker < worker_count && worker < SIZE_N; worker++) {
         send_work_command(worker, val);
-        val++;
+        val += BLOCK_SIZE;
         active_workers++;
     }
     while (active_workers > 0) {
         int worker, result;
         if (val <= SIZE_N) {
             send_work_command(worker, val);
-            val++;
+            val += BLOCK_SIZE;
         } else {
             send_work_command(worker, 0);
             active_workers--;
