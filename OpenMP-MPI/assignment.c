@@ -101,17 +101,8 @@ void await_result(int *worker, int *result) {
  */
 int run_as_master(int worker_count) {
     int active_workers = 0, primes = 0;
-    long int val = 0;//startval, endval = startval + nval;
+    long int val = 0;
 
-    // if (val == 2) {
-    //     // Handling 2, (the only even prime) is messy, so we cheat, and just count it in immediately.
-    //     primes++;
-    //     val++;
-    // }
-    // if ((val % 2) == 0) {
-    //     // If we start with an even number, skip it. Note that we already dealt with 2 above.
-    //     val++;
-    // }
     for (int worker = 1; worker < worker_count && worker < SIZE_N; worker++) {
         send_work_command(worker, val);
         val++;
@@ -119,7 +110,6 @@ int run_as_master(int worker_count) {
     }
     while (active_workers > 0) {
         int worker, result;
-        // await_result(&worker, &result);
         if (val <= SIZE_N) {
             send_work_command(worker, val);
             val++;
