@@ -9,6 +9,7 @@
 #include <math.h>
 
 #define SIZE_N 32
+#define R_MULTIPLIER 8
 
 long int matrix[SIZE_N][SIZE_N];// = new long int[][];
 long int vector[SIZE_N];// = new long int[][];
@@ -20,23 +21,15 @@ long int vector[SIZE_N];// = new long int[][];
  * @return {\code true} iff the value is prime.
  */
 void execute_work(long int n) {
-    // if (n < 2) {
-    //     return false;
-    // }
-    // if ((n % 2) == 0) {
-    //     return n == 2;
-    // }
-    // const long int top = (long int) ceil(sqrt(n));
-    // bool res = true;
-    // for (long int k = 3; k < top; k += 2) {
-    //     if ((n % k) == 0) {
-    //         res = false;
-    //         break;
-    //     }
-    // }
-    // return res;
-}
+    long int baseNumber = vector[n];
+    long int *row = matrix[n];
 
+    long int result = 0;
+    for (int i = 0; i < SIZE_N; i++) {
+        result += baseNumber * row[i] * R_MULTIPLIER; 
+    }
+    vector[n] = result;
+}
 
 /**
  * Given a value to send and a worker to send the value to, send
