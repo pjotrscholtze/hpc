@@ -150,8 +150,6 @@ int main(int argc, char *argv[]) {
     int rank;
     int size;
 
-    const long int base = 10000000000001UL;
-    const long int r = 2000000;
 
     /* Start up MPI */
     MPI_Init(&argc, &argv);
@@ -172,7 +170,7 @@ int main(int argc, char *argv[]) {
         const double start = MPI_Wtime();
         int primes = run_as_master(size - 1);
         const double finish = MPI_Wtime();
-        printf("Master has finished. There are %d primes between %ld and %ld, this took %.1f seconds\n", primes, base, base + r, finish-start);
+        printf("Master has finished. This took %.9f seconds\n", finish-start);
     } else {
         printf("Running as worker %d\n", rank);
         run_as_worker();
