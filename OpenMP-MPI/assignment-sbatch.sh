@@ -1,5 +1,5 @@
 #!/bin/bash -e
-#SBATCH -t 2:30 -N 1 -n 4 --mem=100M
+#SBATCH -t 2:30 -N 1 -n 4 --mem=2000M
 export OMP_NUM_THREADS=`nproc --all`
 
 # module load pre2019
