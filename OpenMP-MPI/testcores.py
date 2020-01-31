@@ -27,7 +27,7 @@ commands = [
 ]
 
 
-def run_for_seconds(cmd: str, timeout: float):
+def run_for_seconds(cmd, timeout):
     p = subprocess.Popen(cmd, shell=True)
     time.sleep(timeout)
     p.kill()
