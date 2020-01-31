@@ -4,7 +4,7 @@ export OMP_NUM_THREADS=`nproc --all`
 
 module load pre2019
 module load python/3.5.0
-python ./testcores.py
+python3 ./testcores.py
 # echo ">> [START] Running on 4 cores"
 # mpirun -np 4 ./assignment
 # echo ">> [STOP] Running on 4 cores"
