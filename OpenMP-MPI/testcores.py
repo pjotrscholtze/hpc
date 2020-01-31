@@ -8,26 +8,22 @@ import sys
 commands = [
     {
         "name": "4 cores",
-        # "cmd": "mpirun -np 4 ./assignment",
-        "cmd": "ping 127.0.0.1",
+        "cmd": "mpirun -np 4 ./assignment",
         "timeout": 5,
     },
     {
         "name": "3 cores",
-        # "cmd": "mpirun -np 3 ./assignment",
-        "cmd": "ping 127.0.0.1",
+        "cmd": "mpirun -np 3 ./assignment",
         "timeout": 5,
     },
     {
         "name": "2 cores",
-        # "cmd": "mpirun -np 2 ./assignment",
-        "cmd": "ping 127.0.0.1",
+        "cmd": "mpirun -np 2 ./assignment",
         "timeout": 5,
     },
     {
         "name": "1 cores",
-        # "cmd": "mpirun -np 1 ./assignment",
-        "cmd": "ping 127.0.0.1",
+        "cmd": "mpirun -np 1 ./assignment",
         "timeout": 5,
     },
 ]
