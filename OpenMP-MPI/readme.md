@@ -1,6 +1,7 @@
 
 # Assignment
 - Given a matrix M of size N x N and a vector V of size N, implement V = M x V
+
 - Choose a memory layout and distribution of M and V for maximal efficiency of this computation
 - Add code to repeat the computation R times, and to measure the overall execution time
 - Hint: the MPI collective communication function

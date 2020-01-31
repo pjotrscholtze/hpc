@@ -28,7 +28,7 @@ void execute_work(long int n) {
 
         long int result = 0;
         for (int i = 0; i < SIZE_N; i++) {
-            result += baseNumber * row[i]; 
+            result += baseNumber * row[i] * R_MULTIPLIER; 
         }
         vector[n + offset] = result;
     }
@@ -104,17 +104,11 @@ int run_as_master(int worker_count) {
         val += BLOCK_SIZE;
         active_workers++;
     }
-    // for (int round = 0; round < R_MULTIPLIER; round++) {
-    int round = 0;
     while (active_workers > 0) {
         int worker;
         if (val > SIZE_N) {
-            if (round > R_MULTIPLIER) {
-                send_work_command(worker, 0);
-                active_workers--;
-            }
-            round++;
-            val = 0;
+            send_work_command(worker, 0);
+            active_workers--;
         } else {
             send_work_command(worker, val);
             val += BLOCK_SIZE;
