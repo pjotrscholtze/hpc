@@ -2,6 +2,8 @@
 
 import subprocess
 import time
+import datetime
+import sys
 
 commands = [
     {
@@ -28,9 +30,21 @@ commands = [
 
 
 def run_for_seconds(cmd, timeout):
-    p = subprocess.Popen(cmd, shell=True)
-    time.sleep(timeout)
-    p.kill()
+    process = subprocess.Popen(cmd, shell=True,stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    start_time = datetime.datetime.now().timestamp()
+
+    while True:
+        out = process.stdout.read(1)
+        if out == '': 
+            if process.poll() != None:
+                break
+        if out != '':
+            sys.stdout.write(out.decode("utf-8"))
+            sys.stdout.flush()
+        if out.decode("utf-8") == '\n':
+            if datetime.datetime.now().timestamp() - start_time > timeout:
+                break
+    process.kill()
 
 
 
