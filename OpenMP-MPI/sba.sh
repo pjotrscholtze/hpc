@@ -1,7 +1,7 @@
 #!/bin/sh
-./sb1.sh
-./sb2.sh
-./sb4.sh
-./sb8.sh
-./sb16.sh
+sbatch ./sb1.sh
+sbatch ./sb2.sh
+sbatch ./sb4.sh
+sbatch ./sb8.sh
+sbatch ./sb16.sh
 
