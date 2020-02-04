@@ -8,12 +8,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define SIZE_N 3200
+#define SIZE_N 23000
 #define BLOCK_SIZE 8
-#define R_MULTIPLIER 8
+#define R_MULTIPLIER 10000
 
-long int matrix[SIZE_N][SIZE_N];// = new long int[][];
-long int vector[SIZE_N];// = new long int[][];
+int matrix[SIZE_N][SIZE_N];
+int vector[SIZE_N];
 
 /**
  * Given a value 'n', return {\code true} iff the value is prime.
@@ -23,10 +23,10 @@ long int vector[SIZE_N];// = new long int[][];
  */
 void execute_work(long int n) {
     for (int offset = 0; offset < BLOCK_SIZE; offset++) {
-        long int baseNumber = vector[n + offset];
-        long int *row = matrix[n + offset];
+        int baseNumber = vector[n + offset];
+        int *row = matrix[n + offset];
 
-        long int result = 0;
+        int result = 0;
         for (int i = 0; i < SIZE_N; i++) {
             result += baseNumber * row[i] * R_MULTIPLIER; 
         }
@@ -95,8 +95,8 @@ void await_result(int *worker, int *result) {
  * @param nval The number of values to examine.
  * @return The number of values in the specified range.
  */
-int run_as_master(int worker_count) {
-    int active_workers = 0, primes = 0;
+void run_as_master(int worker_count) {
+    int active_workers = 0;
     long int val = 0;
 
     for (int worker = 1; worker < worker_count && worker < SIZE_N; worker++) {
@@ -104,17 +104,22 @@ int run_as_master(int worker_count) {
         val += BLOCK_SIZE;
         active_workers++;
     }
+    int round = 0;
     while (active_workers > 0) {
         int worker;
         if (val > SIZE_N) {
-            send_work_command(worker, 0);
-            active_workers--;
+            if (round > R_MULTIPLIER) {
+                send_work_command(worker, 0);
+                active_workers--;
+            } else {
+                round++;
+                val = 0;
+            }
         } else {
             send_work_command(worker, val);
             val += BLOCK_SIZE;
         }
     }
-    return primes;
 }
 
 /**
@@ -154,9 +159,9 @@ int main(int argc, char *argv[]) {
 
         printf("Running as master\n");
         const double start = MPI_Wtime();
-        int primes = run_as_master(size - 1);
+        run_as_master(size - 1);
         const double finish = MPI_Wtime();
-        printf("Master has finished. This took %.9f seconds\n", finish-start);
+        printf("Master has finished. This took %.10f seconds\n", finish-start);
     } else {
         printf("Running as worker %d\n", rank);
         run_as_worker();
