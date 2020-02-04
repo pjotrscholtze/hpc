@@ -26,11 +26,10 @@ void execute_work(long int n, int *results) {
         int baseNumber = vector[n + offset];
         int *row = matrix[n + offset];
 
-        int result = 0;
+        results[offset] = 0;
         for (int i = 0; i < SIZE_N; i++) {
-            result += baseNumber * row[i] * R_MULTIPLIER; 
+            results[offset] += baseNumber * row[i]; 
         }
-        results[offset] = result;
     }
 }
 
@@ -105,25 +104,20 @@ void run_as_master(int worker_count) {
         active_workers++;
     }
     int round = 0;
-    int lastResultPosition = 0;
+    int *result = vector;
     while (active_workers > 0) {
         int worker;
-        int result[BLOCK_SIZE];
         await_result(&worker, result);
-        for (int i = 0; i < BLOCK_SIZE; i++) {
-            vector[lastResultPosition] = result[i];
-            lastResultPosition++;
-        }
+        result = &result[BLOCK_SIZE];
         
-        // vectorResult
-        if (val > SIZE_N) {
+        if (val >= SIZE_N) {
             if (round > R_MULTIPLIER) {
                 send_work_command(worker, 0);
                 active_workers--;
             } else {
                 round++;
                 val = 0;
-                lastResultPosition = 0;
+                result = vector;
             }
         } else {
             send_work_command(worker, val);
@@ -161,14 +155,13 @@ int main(int argc, char *argv[]) {
 
     const bool am_master = 0 == rank;
 
-    if (am_master) {
-        for (int i = 0; i < SIZE_N; i++) {
-            vector[i] = i;
-            for (int j = 0; j < SIZE_N; j++) {
-                matrix[i][j] = i * j;
-            }
+    for (int i = 0; i < SIZE_N; i++) {
+        vector[i] = i;
+        for (int j = 0; j < SIZE_N; j++) {
+            matrix[i][j] = i * j;
         }
-
+    }
+    if (am_master) {
         printf("Running as master\n");
         const double start = MPI_Wtime();
         run_as_master(size - 1);
