@@ -56,8 +56,8 @@ void send_work_command(int worker, long int val) {
  *
  * @param result The result.
  */
-void send_result(int result) {
-    MPI_Send(&result, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+void send_result(int *result) {
+    MPI_Send(result, BLOCK_SIZE, MPI_INT, 0, 0, MPI_COMM_WORLD);
 }
 
 
@@ -80,7 +80,7 @@ void await_command(long int *val) {
  */
 void await_result(int *worker, int *result) {
     MPI_Status status;
-    MPI_Recv(result, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,
+    MPI_Recv(result, BLOCK_SIZE, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,
              &status);
     *worker = status.MPI_SOURCE;
 }
@@ -109,7 +109,7 @@ void run_as_master(int worker_count) {
     while (active_workers > 0) {
         int worker;
         int result[BLOCK_SIZE];
-        await_result(&worker, &result);
+        await_result(&worker, result);
         for (int i = 0; i < BLOCK_SIZE; i++) {
             vector[lastResultPosition] = result[i];
             lastResultPosition++;
