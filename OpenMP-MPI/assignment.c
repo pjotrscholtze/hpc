@@ -21,7 +21,7 @@ int vector[SIZE_N];
  * @param n The value to examine.
  * @return {\code true} iff the value is prime.
  */
-void execute_work(long int n) {
+void execute_work(long int n, int *results) {
     for (int offset = 0; offset < BLOCK_SIZE; offset++) {
         int baseNumber = vector[n + offset];
         int *row = matrix[n + offset];
@@ -30,7 +30,7 @@ void execute_work(long int n) {
         for (int i = 0; i < SIZE_N; i++) {
             result += baseNumber * row[i] * R_MULTIPLIER; 
         }
-        vector[n + offset] = result;
+        results[offset] = result;
     }
 }
 
@@ -105,8 +105,17 @@ void run_as_master(int worker_count) {
         active_workers++;
     }
     int round = 0;
+    int lastResultPosition = 0;
     while (active_workers > 0) {
         int worker;
+        int result[BLOCK_SIZE];
+        await_result(&worker, &result);
+        for (int i = 0; i < BLOCK_SIZE; i++) {
+            vector[lastResultPosition] = result[i];
+            lastResultPosition++;
+        }
+        
+        // vectorResult
         if (val > SIZE_N) {
             if (round > R_MULTIPLIER) {
                 send_work_command(worker, 0);
@@ -114,6 +123,7 @@ void run_as_master(int worker_count) {
             } else {
                 round++;
                 val = 0;
+                lastResultPosition = 0;
             }
         } else {
             send_work_command(worker, val);
@@ -133,7 +143,9 @@ void run_as_worker(void) {
         if (val == 0) {
             break;  // The master told us to stop.
         }
-        execute_work(val);
+        int result[BLOCK_SIZE];
+        execute_work(val, result);
+        send_result(result);
     }
 }
 
