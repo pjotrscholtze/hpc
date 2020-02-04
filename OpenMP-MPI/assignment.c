@@ -9,8 +9,8 @@
 #include <math.h>
 
 #define SIZE_N 23000
-#define BLOCK_SIZE 8
-#define R_MULTIPLIER 10000
+#define BLOCK_SIZE 100
+#define R_MULTIPLIER 130
 
 int matrix[SIZE_N][SIZE_N];
 int vector[SIZE_N];
