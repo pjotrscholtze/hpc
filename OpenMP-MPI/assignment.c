@@ -156,9 +156,9 @@ int main(int argc, char *argv[]) {
     const bool am_master = 0 == rank;
 
     for (int i = 0; i < SIZE_N; i++) {
-        vector[i] = i;
+        vector[i] = i % 10;
         for (int j = 0; j < SIZE_N; j++) {
-            matrix[i][j] = i * j;
+            matrix[i][j] = (i * j) % 10;
         }
     }
     if (am_master) {
