@@ -6,12 +6,14 @@ from glob import glob
 
 block_size = 64
 r_size = 10
-if len(sys.argv) > 2:
+n_size = 10
+if len(sys.argv) > 3:
     block_size = sys.argv[1]
     r_size = sys.argv[2]
+    n_size = sys.argv[3]
 else:
     print(sys.argv)
-    print("arguments: <block_size> <r_size>")
+    print("arguments: <block_size> <r_size> <n_size>")
     exit(1)
 
 assignment_content = ""
@@ -24,6 +26,8 @@ with open("assignment.c", "r") as f:
             line = "#define BLOCK_SIZE " + str(block_size) + "\n"
         if line.startswith("#define R_MULTIPLIER "):
             line = "#define R_MULTIPLIER " + str(r_size) + "\n"
+        if line.startswith("#define SIZE_N "):
+            line = "#define SIZE_N " + str(n_size) + "\n"
         out.append(line)
     assignment_content = "".join(out)
 
