@@ -1,5 +1,5 @@
 #!/bin/sh
-python3 ./set_block_size.py $1 $2
+python3 ./set_block_size.py $1 $2 $3
 rm assignment
 make assignment
 
