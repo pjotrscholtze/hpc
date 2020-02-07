@@ -36,6 +36,9 @@ class Table:
         size_argument = ""
         if self.size: size_argument = self.size
 
+        if self.alignment and not size_argument:
+            size_argument = "{}"
+
         lines += [
             "    \\begin{tabularx}%s{%s}" % (size_argument, self.alignment)
         ]
@@ -68,6 +71,12 @@ class TableBuilder:
         self.rows = []
         self.zebra_rows = zebra_rows
         self.heading_style = heading_style
+
+    def add_raw_row(self, contents: List[str]):
+        prepending, appending = "", ""
+        if self.zebra_rows:
+            prepending, appending = self.zebra_rows[len(self.rows) % len(self.zebra_rows)]
+        self.rows.append(Row([Cell(cell, prepending, appending) for cell in contents]))
     
     def set_raw_header(self, cell_contents: List[str]):
         cells = []

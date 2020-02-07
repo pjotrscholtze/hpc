@@ -41,8 +41,8 @@ def _parse_slurm(path: str) -> Result:
                 time = raw[len(raw) - 2]
                 error = False
         res = Result(size_n, block_size, r_multiplier, cores, error, time)
-        if res.cores==2:
-            print(res.__dict__)
+        # if res.cores==2:
+        #     print(res.__dict__)
     return res
 
 
