@@ -5,8 +5,8 @@ import subprocess
 
 SUBMISSION_DELAY = 0.5
 
-n_sizes = [1000, 2000, 5000, 10000, 20000]
-r_sizes = [1, 2, 5, 10, 100]
+n_sizes = [1000, 2000, 10000, 20000]
+r_sizes = [10, 100, 1000, 10000]
 
 def get_divisors(number: int) -> List[int]:
     limit = int(number / 2)
@@ -22,11 +22,14 @@ def get_divisors(number: int) -> List[int]:
 
 totals = 0
 
-# block_sizes = get_divisors(min(n_sizes))
-block_sizes = [1, 2, 5, 10, 50, 100, 500, 1000]
+block_sizes = get_divisors(min(n_sizes))
+print(block_sizes)
+exit()
+block_sizes = [1, 10, 100, 1000]
 # print(block_sizes)
 
 totals = len(block_sizes) * len(r_sizes) * len(n_sizes)
+print(totals)
 
 counter = 0
 for block_size in block_sizes:
@@ -36,10 +39,10 @@ for block_size in block_sizes:
             # <block_size> <r_size> <n_size>
             cli = "./sba.sh %d %d %d" %(block_size, r_size, n_size)
             print(cli)
-            print("%.1f%% | block_size: %d, r_size: %d, n_size: %d" % (((counter / totals) * 100), block_size, r_size, n_size))
-            subprocess.run("ping 127.0.0.1 -c 1", shell=True)
-            time.sleep(SUBMISSION_DELAY)
-            counter += 1
+            # print("%.1f%% | block_size: %d, r_size: %d, n_size: %d" % (((counter / totals) * 100), block_size, r_size, n_size))
+            # subprocess.run("ping 127.0.0.1 -c 1", shell=True)
+            # time.sleep(SUBMISSION_DELAY)
+            # counter += 1
             pass
 
 
