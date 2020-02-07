@@ -37,7 +37,7 @@ rm assignment
 make assignment
 mv assignment assignment_$1_$2_$3
 
-sbatch ./sb1_$1_$2_$3.sh
+#sbatch ./sb1_$1_$2_$3.sh
 sbatch ./sb2_$1_$2_$3.sh
 sbatch ./sb4_$1_$2_$3.sh
 sbatch ./sb8_$1_$2_$3.sh
